@@ -1,9 +1,8 @@
 
-# qp
-qp (inverted db) reimplementation for SQLite database to comprehend how databases operate.
-this i
+# qp :octopus:
+qp (inverted db) reimplementation for SQLite database to comprehend how databases operate. :eyes:
 
-## usage
+## :mag: usage
 Just install this repo locally by running the following command
 note: make sure that you have the Makefile setup
 
@@ -13,7 +12,7 @@ cd qp && make
 ./build/qp
 ```
 
-## features 
+## :microscope: features 
 
 ### Meta Commands
 | command | Description             | Status |
