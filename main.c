@@ -42,7 +42,7 @@ INPUT* new_input(void)
 
 void prompt(void) 
 {
-  printf("db > ");
+  printf("qp > ");
 }
 
 void read_input(INPUT* input) 
