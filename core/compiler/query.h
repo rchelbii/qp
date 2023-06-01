@@ -7,7 +7,6 @@ typedef struct {
 	char* conditions;
 } Query;
 
-Query query_parser(Query*);
-
+Query query_parser(const char*);
 
 #endif
