@@ -6,7 +6,7 @@
 Query new_query()
 {
 	Query *query = (Query *) malloc(sizeof(Query));
-	if (Query == NULL) {
+	if (query == NULL) {
 		perror("ERROR: Cannot allocate query in memory \n");
 		exit(EXIT_FAILURE);
 	}
