@@ -3,6 +3,47 @@
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
+
+#define sizeofattr(Struct, Attr) sizeof(((Struct*)0)->Attr)
+
+#define PAGE_SIZE 4096
+#define TABLE_MAX_PAGES 100
+
+const uint32_t ROWS_PER_PAGE = PAGE_SIZE / TABLE_MAX_PAGES;
+const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
+
+typedef struct {
+  uint32_t num_rows;
+  void* pages[TABLE_MAX_PAGES];
+} Table;
+
+/*
+ ** support two operations: inserting a row and printing all rows
+ ** reside only in memory (no persistence to disk)
+ ** support a single, hard-coded table
+
+   id: integer
+   usename: varchar(32)
+   email: varchar(255)
+*/
+
+typedef struct {
+  int id;
+  char username[32];
+  char email[255];
+} Row;
+
+const uint32_t ID_SIZE = sizeofattr(Row, id);
+const uint32_t USERNAME_SIZE = sizeofattr(Row, username);
+const uint32_t EMAIL_SIZE = sizeofattr(Row, email);
+
+/* the layout of a serialized row */
+const uint32_t ID_OFFSET = 0;
+const uint32_t USERNAME_OFFSET = ID_SIZE + USERNAME_SIZE;
+const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
+
+const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
 
 typedef struct {
   char* buffer;
@@ -17,6 +58,7 @@ typedef enum {
 
 typedef enum {
   PREPARE_SUCCESS,
+  PREPARE_SYNTAX_ERROR,
   PREPARE_UNRECOGNIZED_STATEMENT,
 } PrepareResult;
 
@@ -27,7 +69,12 @@ typedef enum {
 
 typedef struct {
   StatementType type;
+  Row row_to_insert;
 } Statement;
+
+
+
+
 
 
 INPUT* new_input(void) 
@@ -77,6 +124,12 @@ MetaCommandResult do_meta_command(INPUT* input)
 PrepareResult prepare_statement(INPUT* input, Statement* statement)
 {
   if (strncmp(input->buffer, "insert", 6) == 0) {
+    int args_assigned = sscanf(input->buffer,
+                               "%d %s %s",
+                               &(statement->row_to_insert.id), 
+                               statement->row_to_insert.username, 
+                               statement->row_to_insert.email);
+    if (args_assigned < 3) return PREPARE_SYNTAX_ERROR;
     statement->type = STATEMENT_INSERT;
     return PREPARE_SUCCESS;
   }
@@ -102,6 +155,22 @@ void execute_statement(Statement statement)
 }
 
 
+void serialize_row(Row* source, void* dest) {
+  memcpy(dest + ID_OFFSET, &(source->id), ID_SIZE);
+  memcpy(dest + USERNAME_OFFSET, &(source->username), USERNAME_SIZE);
+  memcpy(dest + EMAIL_OFFSET, &(source->email), EMAIL_SIZE);
+}
+
+void deserialize_row(void* source, Row* dest)
+{
+  memcpy(&(dest->id), source + ID_OFFSET, ID_SIZE);
+  memcpy(&(dest->username), source + USERNAME_OFFSET, USERNAME_SIZE);
+  memcpy(&(dest->email), source + EMAIL_OFFSET, EMAIL_SIZE);
+}
+
+
+
+
 int main(int argc, char** argv)
 {
   INPUT* input = new_input();
@@ -123,6 +192,8 @@ int main(int argc, char** argv)
 
     switch (prepare_statement(input, &statement)) {
       case (PREPARE_SUCCESS):
+        break;
+      case (PREPARE_SYNTAX_ERROR):
         break;
       case (PREPARE_UNRECOGNIZED_STATEMENT):
         printf("Unrecognized keyword at start '%s' \n", input->buffer);
