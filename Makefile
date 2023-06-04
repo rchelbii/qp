@@ -7,5 +7,5 @@ all:
 	mkdir -p build/
 	$(CC) $(FLAGS) $(SOURCE) $(EXTRALIB) -o $(TARGET) 
 
-remove:
+clear:
 	rm -f *.o
