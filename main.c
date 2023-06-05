@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define sizeofattr(Struct, Attr) sizeof(((Struct*)0)->Attr)
+#define SIZE_OF_ATTR(Struct, Attr) sizeof(((Struct*)0)->Attr)
 
 #define PAGE_SIZE 4096
 #define TABLE_MAX_PAGES 100
@@ -34,9 +34,9 @@ typedef struct {
   char email[255];
 } Row;
 
-const uint32_t ID_SIZE = sizeofattr(Row, id);
-const uint32_t USERNAME_SIZE = sizeofattr(Row, username);
-const uint32_t EMAIL_SIZE = sizeofattr(Row, email);
+const uint32_t ID_SIZE = SIZE_OF_ATTR(Row, id);
+const uint32_t USERNAME_SIZE = SIZE_OF_ATTR(Row, username);
+const uint32_t EMAIL_SIZE = SIZE_OF_ATTR(Row, email);
 
 /* the layout of a serialized row */
 const uint32_t ID_OFFSET = 0;
