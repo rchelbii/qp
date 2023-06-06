@@ -19,7 +19,7 @@ typedef struct {
 } Table;
 
 /*
- ** support two operations: inserting a row and printing all rows
+ ** support two operations: inserting a row and printing all rows (insert / select)
  ** reside only in memory (no persistence to disk)
  ** support a single, hard-coded table
 
