@@ -8,5 +8,6 @@ typedef struct {
 } Query;
 
 Query query_parser(const char*);
+unsigned query_analyzer(const char*);
 
 #endif
